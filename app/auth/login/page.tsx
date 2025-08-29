@@ -71,7 +71,7 @@ export default function LoginPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full justify-center gap-2 bg-background border-border/50"
+                className="w-full justify-center gap-2 bg-background border border-border cursor-pointer hover:bg-accent/40 disabled:cursor-not-allowed shadow-sm hover:shadow-md transition-shadow"
                 onClick={handleGoogleAuth}
                 disabled={isLoading}
               >
@@ -91,7 +91,7 @@ export default function LoginPage() {
 
               <div className="flex items-center gap-3">
                 <div className="h-[1px] w-full bg-border/50" />
-                <span className="text-xs text-muted-foreground">o con email</span>
+                <span className="text-xs text-muted-foreground">o</span>
                 <div className="h-[1px] w-full bg-border/50" />
               </div>
             </div>

@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
@@ -22,7 +21,6 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [username, setUsername] = useState("")
   const [displayName, setDisplayName] = useState("")
-  const [isBand, setIsBand] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -53,7 +51,8 @@ export default function SignUpPage() {
           data: {
             username,
             display_name: displayName,
-            is_band: isBand,
+            // All users are standard accounts; bands relate separately.
+            is_band: false,
           },
         },
       })
@@ -126,6 +125,31 @@ export default function SignUpPage() {
               </div>
 
               <TabsContent value="signup">
+                {/* Google first */}
+                <div className="space-y-3 mt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full justify-center gap-2 bg-background border border-border cursor-pointer hover:bg-accent/40 disabled:cursor-not-allowed shadow-sm hover:shadow-md transition-shadow"
+                    onClick={handleGoogleAuth}
+                    disabled={isLoginLoading}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="h-5 w-5">
+                      <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.889 32.657 29.355 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.151 7.961 3.039l5.657-5.657C34.869 6.053 29.706 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.651-.389-3.917z"/>
+                      <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 16.108 18.961 13 24 13c3.059 0 5.842 1.151 7.961 3.039l5.657-5.657C34.869 6.053 29.706 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+                      <path fill="#4CAF50" d="M24 44c5.304 0 10.152-2.034 13.77-5.343l-6.35-5.371C29.346 34.551 26.773 35.5 24 35.5 18.664 35.5 14.148 32.2 12.41 27.5l-6.51 5.019C8.202 39.494 15.56 44 24 44z"/>
+                      <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-1.083 3.157-3.41 5.63-6.583 6.972.003-.001.006-.003.009-.004l6.35 5.371C37.88 37.994 44 32.5 44 24c0-1.341-.138-2.651-.389-3.917z"/>
+                    </svg>
+                    {isLoginLoading ? "Redirigiendo a Google..." : "Continuar con Google"}
+                  </Button>
+
+                  <div className="flex items-center gap-3">
+                    <div className="h-[1px] w-full bg-border/50" />
+                    <span className="text-xs text-muted-foreground">o</span>
+                    <div className="h-[1px] w-full bg-border/50" />
+                  </div>
+                </div>
+
                 <form onSubmit={handleSignUp} className="space-y-4 mt-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
@@ -144,7 +168,7 @@ export default function SignUpPage() {
                     <Input
                       id="username"
                       type="text"
-                      placeholder="tu_nombre_de_banda"
+                      placeholder="tu_usuario"
                       required
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
@@ -152,23 +176,18 @@ export default function SignUpPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="displayName">Nombre para mostrar</Label>
+                    <Label htmlFor="displayName">Nombre</Label>
                     <Input
                       id="displayName"
                       type="text"
-                      placeholder="Nombre de tu banda"
+                      placeholder="Tu nombre"
                       required
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
                       className="bg-background border-border/50"
                     />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="isBand" checked={isBand} onCheckedChange={(checked) => setIsBand(checked as boolean)} />
-                    <Label htmlFor="isBand" className="text-sm">
-                      Soy banda/artista (destildá si sos fan)
-                    </Label>
-                  </div>
+                  {/* Removed band selection: users are standard; bands link separately to users. */}
                   <div className="space-y-2">
                     <Label htmlFor="password">Contraseña</Label>
                     <Input
@@ -195,14 +214,35 @@ export default function SignUpPage() {
                   <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
                     {isLoading ? "Creando cuenta..." : "Crear cuenta"}
                   </Button>
-                  <div className="text-center text-xs text-muted-foreground">o</div>
-                  <Button type="button" variant="outline" className="w-full" onClick={handleGoogleAuth} disabled={isLoginLoading}>
-                    {isLoginLoading ? "Redirigiendo a Google..." : "Continuar con Google"}
-                  </Button>
                 </form>
               </TabsContent>
 
               <TabsContent value="login">
+                {/* Google first */}
+                <div className="space-y-3 mt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full justify-center gap-2 bg-background border border-border cursor-pointer hover:bg-accent/40 disabled:cursor-not-allowed shadow-sm hover:shadow-md transition-shadow"
+                    onClick={handleGoogleAuth}
+                    disabled={isLoginLoading}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="h-5 w-5">
+                      <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.889 32.657 29.355 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.151 7.961 3.039l5.657-5.657C34.869 6.053 29.706 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.651-.389-3.917z"/>
+                      <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 16.108 18.961 13 24 13c3.059 0 5.842 1.151 7.961 3.039l5.657-5.657C34.869 6.053 29.706 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+                      <path fill="#4CAF50" d="M24 44c5.304 0 10.152-2.034 13.77-5.343l-6.35-5.371C29.346 34.551 26.773 35.5 24 35.5 18.664 35.5 14.148 32.2 12.41 27.5l-6.51 5.019C8.202 39.494 15.56 44 24 44z"/>
+                      <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-1.083 3.157-3.41 5.63-6.583 6.972.003-.001.006-.003.009-.004l6.35 5.371C37.88 37.994 44 32.5 44 24c0-1.341-.138-2.651-.389-3.917z"/>
+                    </svg>
+                    {isLoginLoading ? "Redirigiendo a Google..." : "Continuar con Google"}
+                  </Button>
+
+                  <div className="flex items-center gap-3">
+                    <div className="h-[1px] w-full bg-border/50" />
+                    <span className="text-xs text-muted-foreground">o</span>
+                    <div className="h-[1px] w-full bg-border/50" />
+                  </div>
+                </div>
+
                 <form onSubmit={handleLogin} className="space-y-4 mt-4">
                   <div className="space-y-2">
                     <Label htmlFor="login-email">Email</Label>
@@ -230,10 +270,6 @@ export default function SignUpPage() {
                   {loginError && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{loginError}</div>}
                   <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoginLoading}>
                     {isLoginLoading ? "Ingresando..." : "Iniciar sesión"}
-                  </Button>
-                  <div className="text-center text-xs text-muted-foreground">o</div>
-                  <Button type="button" variant="outline" className="w-full" onClick={handleGoogleAuth} disabled={isLoginLoading}>
-                    {isLoginLoading ? "Redirigiendo a Google..." : "Continuar con Google"}
                   </Button>
                 </form>
                 <div className="mt-6 text-center text-sm text-muted-foreground">
