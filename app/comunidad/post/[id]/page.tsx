@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect, useTransition } from "react"
+import { useState, useEffect, useTransition, use } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -18,10 +18,11 @@ import { notFound } from "next/navigation"
 import type { ForumPost, ForumReply } from "@/lib/types"
 
 interface PostPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default function PostPage({ params }: PostPageProps) {
+  const { id } = use(params)
   const [post, setPost] = useState<ForumPost | null>(null)
   const [replies, setReplies] = useState<ForumReply[]>([])
   const [replyContent, setReplyContent] = useState("")
@@ -34,7 +35,7 @@ export default function PostPage({ params }: PostPageProps) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [postData, repliesData] = await Promise.all([getForumPost(params.id), getForumReplies(params.id)])
+        const [postData, repliesData] = await Promise.all([getForumPost(id), getForumReplies(id)])
 
         if (!postData) {
           notFound()
@@ -59,7 +60,7 @@ export default function PostPage({ params }: PostPageProps) {
     }
 
     fetchData()
-  }, [params.id])
+  }, [id])
 
   const handleReplySubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -78,7 +79,7 @@ export default function PostPage({ params }: PostPageProps) {
     startTransition(async () => {
       const formData = new FormData()
       formData.append("content", replyContent.trim())
-      formData.append("postId", params.id)
+      formData.append("postId", id)
 
       const result = await createForumReply(formData)
 
@@ -87,7 +88,7 @@ export default function PostPage({ params }: PostPageProps) {
       } else {
         setReplyContent("")
         // Refresh replies
-        const updatedReplies = await getForumReplies(params.id)
+        const updatedReplies = await getForumReplies(id)
         setReplies(updatedReplies)
       }
     })
@@ -110,7 +111,7 @@ export default function PostPage({ params }: PostPageProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container py-8 max-w-4xl">
+      <div className="container mx-auto py-8 max-w-4xl">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="sm" asChild>

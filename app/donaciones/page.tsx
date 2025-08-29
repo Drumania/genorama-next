@@ -53,42 +53,52 @@ export default function DonacionesPage() {
 
         setUser(currentUser)
 
-        // Fetch donations given by user
-        const { data: givenData, error: givenError } = await supabase
+        // Fetch donations given by user (basic rows)
+        const { data: givenRows, error: givenError } = await supabase
           .from("donations")
-          .select(`
-            *,
-            recipient_profile:recipient_id (
-              username,
-              display_name,
-              avatar_url
-            )
-          `)
+          .select("*")
           .eq("donor_id", currentUser.id)
           .eq("payment_status", "completed")
           .order("created_at", { ascending: false })
-
         if (givenError) throw givenError
 
-        // Fetch donations received by user
-        const { data: receivedData, error: receivedError } = await supabase
+        // Enrich recipients profiles
+        const recipientIds = Array.from(new Set((givenRows || []).map((d) => d.recipient_id).filter(Boolean)))
+        const { data: recipientProfiles } = await supabase
+          .from("profiles")
+          .select("id, username, display_name, avatar_url")
+          .in("id", recipientIds.length ? recipientIds : ["00000000-0000-0000-0000-000000000000"]) // avoid empty IN
+        const recipientMap = new Map((recipientProfiles || []).map((p) => [p.id, p]))
+        const givenData = (givenRows || []).map((d) => ({
+          ...d,
+          recipient_profile: d.recipient_id ? recipientMap.get(d.recipient_id) || null : null,
+        })) as DonationWithProfiles[]
+
+        // Fetch donations received by user (basic rows)
+        const { data: receivedRows, error: receivedError } = await supabase
           .from("donations")
-          .select(`
-            *,
-            donor_profile:donor_id (
-              username,
-              display_name,
-              avatar_url
-            )
-          `)
+          .select("*")
           .eq("recipient_id", currentUser.id)
           .eq("payment_status", "completed")
           .order("created_at", { ascending: false })
-
         if (receivedError) throw receivedError
 
-        setDonationsGiven(givenData || [])
-        setDonationsReceived(receivedData || [])
+        // Enrich donors profiles (for non-anonymous)
+        const donorIds = Array.from(
+          new Set((receivedRows || []).map((d) => d.donor_id).filter((id): id is string => !!id)),
+        )
+        const { data: donorProfiles } = await supabase
+          .from("profiles")
+          .select("id, username, display_name, avatar_url")
+          .in("id", donorIds.length ? donorIds : ["00000000-0000-0000-0000-000000000000"]) // avoid empty IN
+        const donorMap = new Map((donorProfiles || []).map((p) => [p.id, p]))
+        const receivedData = (receivedRows || []).map((d) => ({
+          ...d,
+          donor_profile: d.donor_id ? donorMap.get(d.donor_id) || null : null,
+        })) as DonationWithProfiles[]
+
+        setDonationsGiven(givenData)
+        setDonationsReceived(receivedData)
 
         // Calculate stats
         const totalGiven = (givenData || []).reduce((sum, d) => sum + d.amount, 0)
@@ -127,7 +137,7 @@ export default function DonacionesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container py-8">
+      <div className="container max-w-[1200px] mx-auto py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-4">Historial de Donaciones</h1>
           <p className="text-lg text-muted-foreground">Revisa todas tus donaciones realizadas y recibidas</p>

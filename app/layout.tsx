@@ -7,8 +7,7 @@ import { Header } from "@/components/header"
 
 export const metadata: Metadata = {
   title: "Genorama - Plataforma de Lanzamientos Musicales",
-  description: "La plataforma definitiva para músicos y bandas. Descubre, vota y apoya nuevos lanzamientos musicales.",
-  generator: "v0.app",
+  description: "La plataforma para músicos y bandas. Descubre, vota y apoya nuevos lanzamientos musicales.",
 }
 
 export default function RootLayout({

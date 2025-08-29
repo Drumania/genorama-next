@@ -29,10 +29,15 @@ const BASE_TODAY_ITEMS = Array.from({ length: 50 }).map((_, i) => ({
   comments: 0,
 }))
 
+// For demo: total loaded today (e.g., 43)
+const TODAY_TOTAL = 43
+
 export function HardcodedTodayLaunches() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [items, setItems] = useState(BASE_TODAY_ITEMS)
-  const [count, setCount] = useState<number>(15)
+  const [items, setItems] = useState(BASE_TODAY_ITEMS.slice(0, TODAY_TOTAL))
+  const [count, setCount] = useState<number>(Math.min(15, TODAY_TOTAL))
+  const [revealRange, setRevealRange] = useState<{ start: number; end: number } | null>(null)
+  const [revealActive, setRevealActive] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -64,6 +69,25 @@ export function HardcodedTodayLaunches() {
 
   const visibleItems = useMemo(() => items.slice(0, Math.min(count, items.length)), [items, count])
 
+  const total = items.length
+
+  const handleLoadMore = () => {
+    setCount((prev) => {
+      const next = Math.min(prev + 15, total)
+      setRevealRange({ start: prev, end: next - 1 })
+      setRevealActive(false)
+      return next
+    })
+  }
+
+  // Trigger CSS transition after new items mount
+  useEffect(() => {
+    if (revealRange) {
+      const id = setTimeout(() => setRevealActive(true), 0)
+      return () => clearTimeout(id)
+    }
+  }, [revealRange])
+
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
@@ -71,10 +95,13 @@ export function HardcodedTodayLaunches() {
       </div>
 
       <div className="space-y-2">
-        {visibleItems.map((item, idx) => (
+        {visibleItems.map((item, idx) => {
+          const isNew = revealRange && idx >= revealRange.start && idx <= revealRange.end
+          const transitionClasses = isNew && !revealActive ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"
+          return (
           <div
             key={item.id}
-            className="flex items-center gap-4 p-4 border rounded-xl bg-card hover:bg-accent/10 transition-colors"
+            className={`flex items-center gap-4 p-4 border rounded-xl bg-card hover:bg-accent/10 transition-all duration-300 ${transitionClasses}`}
           >
             {/* Position */}
             <div className="w-6 text-right text-sm font-semibold text-muted-foreground">{idx + 1}.</div>
@@ -126,16 +153,20 @@ export function HardcodedTodayLaunches() {
               </Button>
             </div>
           </div>
-        ))}
+        )})}
       </div>
 
-      {count < 50 && (
-        <div className="mt-4 flex justify-center">
-          <Button variant="outline" size="sm" onClick={() => setCount(50)}>
-            Ver todos
-          </Button>
-        </div>
-      )}
+      <div className="mt-4 flex justify-center">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleLoadMore}
+          className="cursor-pointer disabled:cursor-not-allowed"
+          disabled={count >= total}
+        >
+          {`Ver más (${count} / ${total})`}
+        </Button>
+      </div>
     </section>
   )
 }

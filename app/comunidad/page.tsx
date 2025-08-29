@@ -1,70 +1,16 @@
-"use client"
-
-import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { ForumCategoryCard } from "@/components/forum-category-card"
 import { ForumPostCard } from "@/components/forum-post-card"
-import { CreatePostModal } from "@/components/create-post-modal"
 import { Plus, MessageSquare, TrendingUp, Clock } from "lucide-react"
-import { getForumCategories, getForumPosts } from "@/lib/supabase/queries.client"
-import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
-import type { ForumCategory, ForumPost } from "@/lib/types"
+import { getForumCategories, getForumPosts } from "@/lib/supabase/queries"
+import CreatePostCta from "@/components/create-post-cta"
 
-export default function ComunidadPage() {
-  const [categories, setCategories] = useState<ForumCategory[]>([])
-  const [recentPosts, setRecentPosts] = useState<ForumPost[]>([])
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [categoriesData, postsData] = await Promise.all([getForumCategories(), getForumPosts(undefined, 10)])
-
-        setCategories(categoriesData)
-        setRecentPosts(postsData)
-
-        // Check authentication
-        const supabase = createClient()
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
-        setIsAuthenticated(!!user)
-      } catch (error) {
-        console.error("Error fetching community data:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchData()
-  }, [])
-
-  const handleCreatePost = () => {
-    if (!isAuthenticated) {
-      router.push("/auth/signup?tab=login")
-      return
-    }
-    setIsCreateModalOpen(true)
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Cargando comunidad...</p>
-        </div>
-      </div>
-    )
-  }
+export default async function ComunidadPage() {
+  const [categories, recentPosts] = await Promise.all([getForumCategories(), getForumPosts(undefined, 10)])
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container py-8">
+      <div className="container max-w-[1200px] mx-auto py-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
           <div>
@@ -73,10 +19,10 @@ export default function ComunidadPage() {
               Conecta con otros músicos, comparte experiencias y aprende juntos
             </p>
           </div>
-          <Button onClick={handleCreatePost} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Crear Post
-          </Button>
+          <div className="flex items-center gap-2">
+            <Plus className="h-4 w-4 text-primary" />
+            <CreatePostCta categories={categories} />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -158,7 +104,7 @@ export default function ComunidadPage() {
         </div>
       </div>
 
-      <CreatePostModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} categories={categories} />
+      {/* Modal se maneja en CreatePostCta */}
     </div>
   )
 }

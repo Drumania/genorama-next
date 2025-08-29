@@ -17,7 +17,7 @@ export default async function BandasPage({ searchParams }: BandasPageProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container py-8">
+      <div className="container max-w-[1200px] mx-auto py-8">
         {/* Header Section */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-4">Descubre Artistas</h1>

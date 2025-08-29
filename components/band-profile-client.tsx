@@ -2,7 +2,6 @@
 
 import { LaunchCard } from "@/components/launch-card"
 import { DonationModal } from "@/components/donation-modal"
-import { DonationList } from "@/components/donation-list"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -55,7 +54,7 @@ export function BandProfileClient({ profile, releases }: BandProfileClientProps)
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
         <div className="absolute bottom-0 left-0 right-0 p-8">
-          <div className="container">
+          <div className="container max-w-[1200px] mx-auto">
             <div className="flex flex-col md:flex-row items-start md:items-end gap-6">
               <div className="relative">
                 <Image
@@ -106,7 +105,7 @@ export function BandProfileClient({ profile, releases }: BandProfileClientProps)
         </div>
       </div>
 
-      <div className="container py-8">
+      <div className="container max-w-[1200px] mx-auto py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
@@ -119,8 +118,6 @@ export function BandProfileClient({ profile, releases }: BandProfileClientProps)
                 </p>
               </CardContent>
             </Card>
-
-            <DonationList recipient={profile} />
 
             {/* Releases Section */}
             <div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { Button } from "@/components/ui/button"
 import { ForumPostCard } from "@/components/forum-post-card"
 import { CreatePostModal } from "@/components/create-post-modal"
@@ -13,10 +13,11 @@ import { notFound } from "next/navigation"
 import type { ForumCategory, ForumPost } from "@/lib/types"
 
 interface CategoryPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default function CategoryPage({ params }: CategoryPageProps) {
+  const { id } = use(params)
   const [category, setCategory] = useState<ForumCategory | null>(null)
   const [posts, setPosts] = useState<ForumPost[]>([])
   const [categories, setCategories] = useState<ForumCategory[]>([])
@@ -29,8 +30,8 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     const fetchData = async () => {
       try {
         const [categoryData, postsData, categoriesData] = await Promise.all([
-          getCategoryById(params.id),
-          getForumPosts(params.id),
+          getCategoryById(id),
+          getForumPosts(id),
           getForumCategories(),
         ])
 
@@ -58,7 +59,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     }
 
     fetchData()
-  }, [params.id])
+  }, [id])
 
   const handleCreatePost = () => {
     if (!isAuthenticated) {
@@ -85,7 +86,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container py-8">
+      <div className="container max-w-[1200px] mx-auto py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="sm" asChild>
