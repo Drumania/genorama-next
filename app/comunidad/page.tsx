@@ -45,7 +45,7 @@ export default function ComunidadPage() {
 
   const handleCreatePost = () => {
     if (!isAuthenticated) {
-      router.push("/auth/login")
+      router.push("/auth/signup?tab=login")
       return
     }
     setIsCreateModalOpen(true)

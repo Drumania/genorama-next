@@ -70,7 +70,7 @@ export default function EventosPage() {
 
   const handleCreateEvent = () => {
     if (!isAuthenticated) {
-      router.push("/auth/login")
+      router.push("/auth/signup?tab=login")
       return
     }
     setIsCreateModalOpen(true)

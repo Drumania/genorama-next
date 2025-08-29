@@ -60,7 +60,7 @@ export default function BandProfilePage({ params }: BandProfilePageProps) {
 
   const handleDonateClick = () => {
     if (!isAuthenticated) {
-      router.push("/auth/login")
+      router.push("/auth/signup?tab=login")
       return
     }
     setIsDonationModalOpen(true)

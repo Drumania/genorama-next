@@ -12,18 +12,18 @@ export default function VerifyEmailPage() {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
               <Mail className="h-6 w-6 text-primary" />
             </div>
-            <CardTitle className="text-2xl font-bold text-foreground">Check your email</CardTitle>
+            <CardTitle className="text-2xl font-bold text-foreground">Revisá tu email</CardTitle>
             <CardDescription className="text-muted-foreground">
-              We've sent you a verification link to complete your registration
+              Te enviamos un enlace de verificación para completar tu registro
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <p className="text-sm text-muted-foreground">
-              Click the link in your email to verify your account and start using Genorama.
+              Hacé clic en el enlace de tu email para verificar tu cuenta y empezar a usar Genorama.
             </p>
             <div className="pt-4">
               <Button asChild variant="outline" className="w-full bg-transparent">
-                <Link href="/auth/login">Back to Sign In</Link>
+                <Link href="/auth/signup?tab=login">Volver a Iniciar sesión</Link>
               </Button>
             </div>
           </CardContent>

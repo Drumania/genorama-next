@@ -32,8 +32,27 @@ export default function LoginPage() {
       if (error) throw error
       router.push("/")
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred")
+      setError(error instanceof Error ? error.message : "Ocurrió un error")
     } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleAuth = async () => {
+    const supabase = createClient()
+    setIsLoading(true)
+    try {
+      try {
+        localStorage.setItem("postAuthRedirect", window.location.href)
+      } catch {}
+      const redirectTo = `${window.location.origin}/auth/callback`
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo },
+      })
+      if (error) throw error
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Ocurrió un error")
       setIsLoading(false)
     }
   }
@@ -43,19 +62,47 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <Card className="border-border/50">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-foreground">Welcome back to Genorama</CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Sign in to discover and vote for amazing music releases
-            </CardDescription>
+            <CardTitle className="text-2xl font-bold text-foreground">Bienvenido de vuelta a Genorama</CardTitle>
+            <CardDescription className="text-muted-foreground">Iniciá sesión para descubrir y votar lanzamientos</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
+            {/* Google first */}
+            <div className="space-y-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full justify-center gap-2 bg-background border-border/50"
+                onClick={handleGoogleAuth}
+                disabled={isLoading}
+              >
+                {/* Google icon (SVG) */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 48 48"
+                  className="h-5 w-5"
+                >
+                  <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.889 32.657 29.355 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.151 7.961 3.039l5.657-5.657C34.869 6.053 29.706 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.651-.389-3.917z"/>
+                  <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 16.108 18.961 13 24 13c3.059 0 5.842 1.151 7.961 3.039l5.657-5.657C34.869 6.053 29.706 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+                  <path fill="#4CAF50" d="M24 44c5.304 0 10.152-2.034 13.77-5.343l-6.35-5.371C29.346 34.551 26.773 35.5 24 35.5 18.664 35.5 14.148 32.2 12.41 27.5l-6.51 5.019C8.202 39.494 15.56 44 24 44z"/>
+                  <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-1.083 3.157-3.41 5.63-6.583 6.972.003-.001.006-.003.009-.004l6.35 5.371C37.88 37.994 44 32.5 44 24c0-1.341-.138-2.651-.389-3.917z"/>
+                </svg>
+                {isLoading ? "Redirigiendo a Google..." : "Continuar con Google"}
+              </Button>
+
+              <div className="flex items-center gap-3">
+                <div className="h-[1px] w-full bg-border/50" />
+                <span className="text-xs text-muted-foreground">o con email</span>
+                <div className="h-[1px] w-full bg-border/50" />
+              </div>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-4 mt-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="artist@example.com"
+                  placeholder="artista@ejemplo.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -63,7 +110,7 @@ export default function LoginPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Contraseña</Label>
                 <Input
                   id="password"
                   type="password"
@@ -75,13 +122,13 @@ export default function LoginPage() {
               </div>
               {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>}
               <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
-                {isLoading ? "Signing in..." : "Sign In"}
+                {isLoading ? "Ingresando..." : "Iniciar sesión"}
               </Button>
             </form>
             <div className="mt-6 text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
+              ¿No tenés cuenta?{" "}
               <Link href="/auth/signup" className="text-primary hover:text-primary/80 underline underline-offset-4">
-                Sign up
+                Crear cuenta
               </Link>
             </div>
           </CardContent>

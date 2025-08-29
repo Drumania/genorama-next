@@ -34,7 +34,7 @@ export function VoteButton({ releaseId, initialVoteCount, initialUserVoted }: Vo
 
   const handleVote = () => {
     if (!isAuthenticated) {
-      router.push("/auth/login")
+      router.push("/auth/signup?tab=login")
       return
     }
 

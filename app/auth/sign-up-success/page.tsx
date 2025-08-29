@@ -22,7 +22,7 @@ export default function SignUpSuccessPage() {
             Una vez que confirmes tu email, podrás acceder a todas las funciones de Genorama.
           </p>
           <Button asChild className="w-full">
-            <Link href="/auth/login">Ir al Login</Link>
+            <Link href="/auth/signup?tab=login">Ir a Iniciar sesión</Link>
           </Button>
         </CardContent>
       </Card>

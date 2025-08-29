@@ -62,7 +62,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
   const handleCreatePost = () => {
     if (!isAuthenticated) {
-      router.push("/auth/login")
+      router.push("/auth/signup?tab=login")
       return
     }
     setIsCreateModalOpen(true)

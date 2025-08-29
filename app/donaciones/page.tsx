@@ -47,7 +47,7 @@ export default function DonacionesPage() {
         } = await supabase.auth.getUser()
 
         if (!currentUser) {
-          router.push("/auth/login")
+          router.push("/auth/signup?tab=login")
           return
         }
 

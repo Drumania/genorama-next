@@ -21,7 +21,7 @@ export async function LaunchGrid({ sortBy = "votes" }: LaunchGridProps) {
 
   return (
     <section className="py-16 px-4">
-      <div className="container">
+      <div className="container max-w-[1200px] mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-3xl font-bold">Lanzamientos de Hoy</h2>
           <div className="flex gap-2">

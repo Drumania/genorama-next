@@ -66,7 +66,7 @@ export default function PostPage({ params }: PostPageProps) {
     setError(null)
 
     if (!isAuthenticated) {
-      router.push("/auth/login")
+      router.push("/auth/signup?tab=login")
       return
     }
 
@@ -194,7 +194,7 @@ export default function PostPage({ params }: PostPageProps) {
               <CardContent className="p-6 text-center">
                 <p className="text-muted-foreground mb-4">Inicia sesión para participar en la conversación</p>
                 <Button asChild>
-                  <Link href="/auth/login">Iniciar Sesión</Link>
+                  <Link href="/auth/signup?tab=login">Iniciar Sesión</Link>
                 </Button>
               </CardContent>
             </Card>

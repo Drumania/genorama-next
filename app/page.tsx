@@ -1,33 +1,27 @@
 import { Header } from "@/components/header"
 import { Hero } from "@/components/hero"
-import { LaunchGrid } from "@/components/launch-grid"
-import { Suspense } from "react"
+import { HardcodedTodayLaunches } from "@/components/hardcoded-today-launches"
+import { HardcodedSidebarLaunches } from "@/components/hardcoded-sidebar-launches"
 
-interface HomePageProps {
-  searchParams: { sort?: "votes" | "recent" }
-}
-
-export default function HomePage({ searchParams }: HomePageProps) {
-  const sortBy = searchParams.sort || "votes"
+export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main>
         <Hero />
-        <Suspense
-          fallback={
-            <div className="py-16 px-4">
-              <div className="container">
-                <div className="text-center">
-                  <p className="text-muted-foreground">Cargando lanzamientos...</p>
-                </div>
+        <section className="px-4 py-8">
+          <div className="container max-w-[1200px] mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <div className="lg:col-span-8">
+                <HardcodedTodayLaunches />
+              </div>
+              <div className="lg:col-span-4">
+                <HardcodedSidebarLaunches />
               </div>
             </div>
-          }
-        >
-          <LaunchGrid sortBy={sortBy} />
-        </Suspense>
+          </div>
+        </section>
       </main>
     </div>
   )
