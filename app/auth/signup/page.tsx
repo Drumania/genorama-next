@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React, { Suspense, useEffect, useState } from "react"
 
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -9,13 +9,18 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function SignUpPage() {
-  const searchParams = useSearchParams()
-  const initialTab = searchParams.get("tab") === "login" ? "login" : "signup"
-  const [tab, setTab] = useState(initialTab)
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" />}> 
+      <SignUpPageInner />
+    </Suspense>
+  )
+}
+
+function SignUpPageInner() {
+  const [tab, setTab] = useState("signup")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -24,6 +29,15 @@ export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Set initial tab from URL params after component mounts
+  useEffect(() => {
+    if (searchParams) {
+      const initialTab = searchParams.get("tab") === "login" ? "login" : "signup"
+      setTab(initialTab)
+    }
+  }, [searchParams])
 
   // Login state
   const [loginEmail, setLoginEmail] = useState("")
