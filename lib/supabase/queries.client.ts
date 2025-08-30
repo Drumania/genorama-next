@@ -4,6 +4,20 @@ import { createClient } from "@/lib/supabase/client"
 import type { Release, Profile, Donation, ForumCategory, ForumPost, ForumReply, Event } from "@/lib/types"
 
 // Forum
+export async function getCategoryById(categoryId: string): Promise<ForumCategory | null> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from("forum_categories")
+    .select("*")
+    .eq("id", categoryId)
+    .single()
+  if (error) {
+    console.error("Error fetching category (client):", error)
+    return null
+  }
+  return data
+}
+
 export async function getForumCategories(): Promise<ForumCategory[]> {
   const supabase = createClient()
   const { data, error } = await supabase
@@ -149,4 +163,3 @@ export async function getEventsWithUserAttendance(
   }
   return data || []
 }
-

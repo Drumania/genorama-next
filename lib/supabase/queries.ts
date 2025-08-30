@@ -1,3 +1,4 @@
+import "server-only"
 import { createClient } from "@/lib/supabase/server"
 import type { Release, Profile, Donation, ForumCategory, ForumPost, ForumReply, Event } from "@/lib/types"
 
@@ -140,25 +141,44 @@ export async function getProfileDonations(recipientId: string, limit = 10): Prom
 
   const { data, error } = await supabase
     .from("donations")
-    .select(`
-      *,
-      donor_profile:donor_id (
-        username,
-        display_name,
-        avatar_url
-      )
-    `)
+    .select("*")
     .eq("recipient_id", recipientId)
     .eq("payment_status", "completed")
     .limit(limit)
     .order("created_at", { ascending: false })
 
   if (error) {
-    console.error("Error fetching donations:", error)
+    console.error("Error fetching donations:", error?.message ?? error)
     return []
   }
 
-  return data || []
+  const donations = data || []
+
+  // Enrich with donor profiles (workaround for FK via auth.users)
+  const donorIds = Array.from(
+    new Set(
+      donations
+        .filter((d) => !d.is_anonymous && d.donor_id)
+        .map((d) => d.donor_id as string),
+    ),
+  )
+
+  if (donorIds.length > 0) {
+    const { data: profiles, error: profilesError } = await supabase
+      .from("profiles")
+      .select("id, username, display_name, avatar_url")
+      .in("id", donorIds)
+
+    if (!profilesError && profiles) {
+      const map = new Map(profiles.map((p) => [p.id, p]))
+      return donations.map((d) => ({
+        ...d,
+        donor_profile: d.donor_id ? (map.get(d.donor_id) as any) ?? null : null,
+      })) as unknown as Donation[]
+    }
+  }
+
+  return donations as Donation[]
 }
 
 export async function getDonationStats(recipientId: string) {
