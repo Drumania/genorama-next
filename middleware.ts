@@ -1,7 +1,22 @@
 import { updateSession } from "@/lib/supabase/middleware"
-import type { NextRequest } from "next/server"
+import { NextResponse, type NextRequest } from "next/server"
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Public routes that should not hit Supabase auth in middleware
+  const publicPrefixes = [
+    "/", // home
+    "/bandas",
+    "/banda",
+    "/comunidad",
+    "/eventos",
+  ]
+
+  if (publicPrefixes.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
+    return NextResponse.next({ request })
+  }
+
   return await updateSession(request)
 }
 
