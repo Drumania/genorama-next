@@ -171,16 +171,27 @@ export async function createForumReply(formData: FormData) {
   }
 
   // Update post reply count and last reply time
-  const { error: updateError } = await supabase
-    .from("forum_posts")
-    .update({
-      reply_count: supabase.raw("reply_count + 1"),
-      last_reply_at: new Date().toISOString(),
-    })
-    .eq("id", postId)
+  // Supabase JS doesn't support raw SQL in updates.
+  // Recalculate reply_count and update timestamp atomically enough for our use case.
+  const { count, error: countError } = await supabase
+    .from("forum_replies")
+    .select("*", { count: "exact", head: true })
+    .eq("post_id", postId)
 
-  if (updateError) {
-    console.error("Error updating post stats:", updateError)
+  if (countError) {
+    console.error("Error counting replies:", countError)
+  } else {
+    const { error: updateError } = await supabase
+      .from("forum_posts")
+      .update({
+        reply_count: count ?? 0,
+        last_reply_at: new Date().toISOString(),
+      })
+      .eq("id", postId)
+
+    if (updateError) {
+      console.error("Error updating post stats:", updateError)
+    }
   }
 
   revalidatePath(`/comunidad/post/${postId}`)
