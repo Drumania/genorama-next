@@ -11,6 +11,7 @@ export async function middleware(request: NextRequest) {
     "/banda",
     "/comunidad",
     "/eventos",
+    "/usuario", // user profiles should be public
   ]
 
   if (publicPrefixes.some((p) => pathname === p || pathname.startsWith(p + "/"))) {

@@ -1,8 +1,55 @@
+export interface User {
+  id: string
+  username: string
+  display_name: string
+  email: string
+  bio: string | null
+  avatar_url: string | null
+  website_url: string | null
+  location: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface Band {
+  id: string
+  name: string
+  username: string
+  description: string | null
+  cover_image_url: string | null
+  logo_url: string | null
+  website_url: string | null
+  spotify_url: string | null
+  youtube_url: string | null
+  instagram_url: string | null
+  location: string | null
+  city: string | null
+  country: string | null
+  genres: string[] | null
+  founded_year: number | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface UserBand {
+  id: string
+  user_id: string
+  band_id: string
+  role: 'owner' | 'member' | 'admin' | 'collaborator'
+  joined_at: string
+  is_active: boolean
+  // Joined data
+  user?: User
+  band?: Band
+}
+
 export interface Release {
   id: string
   title: string
   description: string | null
-  artist_id: string
+  artist_id: string // Keep for backward compatibility
+  band_id: string | null // New field
   cover_image_url: string | null
   youtube_url: string | null
   spotify_url: string | null
@@ -20,6 +67,12 @@ export interface Release {
     display_name: string
     avatar_url: string | null
   }
+  band?: {
+    id: string
+    name: string
+    username: string
+    logo_url: string | null
+  }
   user_vote?: {
     id: string
   } | null
@@ -27,7 +80,8 @@ export interface Release {
 
 export interface Vote {
   id: string
-  user_id: string
+  user_id: string // Keep for backward compatibility
+  user_id_new: string | null // New field
   release_id: string
   created_at: string
 }
@@ -51,8 +105,10 @@ export interface Profile {
 
 export interface Donation {
   id: string
-  donor_id: string | null
-  recipient_id: string
+  donor_id: string | null // Keep for backward compatibility
+  donor_user_id: string | null // New field
+  recipient_id: string // Keep for backward compatibility
+  recipient_user_id: string | null // New field
   amount: number
   message: string | null
   is_anonymous: boolean
@@ -70,6 +126,8 @@ export interface Donation {
     display_name: string
     avatar_url: string | null
   }
+  donor_user?: User | null
+  recipient_user?: User | null
 }
 
 export interface ForumCategory {
@@ -84,7 +142,8 @@ export interface ForumPost {
   id: string
   title: string
   content: string
-  author_id: string
+  author_id: string // Keep for backward compatibility
+  author_user_id: string | null // New field
   category_id: string
   is_pinned: boolean
   reply_count: number
@@ -97,6 +156,7 @@ export interface ForumPost {
     display_name: string
     avatar_url: string | null
   }
+  author_user?: User
   category?: {
     name: string
     color: string
@@ -122,7 +182,8 @@ export interface Event {
   id: string
   title: string
   description: string | null
-  organizer_id: string
+  organizer_id: string // Keep for backward compatibility
+  organizer_user_id: string | null // New field
   event_date: string
   end_date: string | null
   location: string | null
@@ -143,6 +204,7 @@ export interface Event {
     display_name: string
     avatar_url: string | null
   }
+  organizer_user?: User
   user_attending?: {
     id: string
   } | null

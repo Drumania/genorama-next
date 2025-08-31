@@ -22,7 +22,12 @@ const BASE_TODAY_ITEMS = Array.from({ length: 50 }).map((_, i) => ({
   artist: `Artista Hoy #${i + 1}`,
   username: `artista${i + 1}`,
   type: TYPES[i % TYPES.length] as ItemType,
-  cover: `/placeholder.svg?height=80&width=80&query=today+${i + 1}`,
+  cover: [
+    "/album-cover-midnight-dreams-electronic-music.png",
+    "/alternative-rock-band-album-cover-ethereal.png", 
+    "/hip-hop-urban-album-cover-street-art.png",
+    "/placeholder.jpg"
+  ][i % 4],
   description: `Descripción breve del lanzamiento #${i + 1}. Inspiración, estilo y detalles del track.`,
   tags: [TAGS[i % TAGS.length], TAGS[(i + 3) % TAGS.length], TAGS[(i + 6) % TAGS.length]].slice(0, 3),
   votes: 0,
@@ -99,9 +104,10 @@ export function HardcodedTodayLaunches() {
           const isNew = revealRange && idx >= revealRange.start && idx <= revealRange.end
           const transitionClasses = isNew && !revealActive ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"
           return (
-          <div
+          <Link
             key={item.id}
-            className={`flex items-center gap-4 p-4 border rounded-xl bg-card hover:bg-accent/10 transition-all duration-300 ${transitionClasses}`}
+            href={`/banda/${item.username}`}
+            className={`flex items-center gap-4 p-4 border rounded-xl bg-card hover:bg-accent/10 transition-all duration-300 ${transitionClasses} block`}
           >
             {/* Position */}
             <div className="w-6 text-right text-sm font-semibold text-muted-foreground">{idx + 1}.</div>
@@ -111,8 +117,8 @@ export function HardcodedTodayLaunches() {
               <Image
                 src={item.cover}
                 alt={`${item.title} por ${item.artist}`}
-                width={48}
-                height={48}
+                width={80}
+                height={80}
                 className="rounded object-cover"
               />
             </div>
@@ -120,11 +126,13 @@ export function HardcodedTodayLaunches() {
             {/* Content */}
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <Link href={`/banda/${item.username}`} className="truncate">
-                  <span className="font-semibold text-foreground hover:text-primary transition-colors">
-                    {item.artist}
-                  </span>
-                </Link>
+                <span className="font-semibold text-foreground">
+                  {item.artist}
+                </span>
+                {/* Type badge */}
+                <Badge variant="outline" className="text-[10px] px-2 py-0.5">
+                  {item.type}
+                </Badge>
               </div>
               <p className="text-sm text-muted-foreground truncate">{item.description}</p>
               <div className="flex items-center gap-2 mt-1">
@@ -142,17 +150,19 @@ export function HardcodedTodayLaunches() {
                 <MessageCircle className="h-4 w-4" />
                 <span>{item.comments}</span>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleVote}
-                className="px-3 py-2 rounded-xl border flex items-center gap-2"
+              <div 
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleVote()
+                }}
+                className="px-3 py-2 rounded-xl border text-sm text-muted-foreground bg-background/50 flex items-center gap-2 cursor-pointer hover:bg-accent/20 hover:border-primary/30 transition-colors"
               >
                 <ChevronUp className="h-4 w-4" />
                 <span>{item.votes}</span>
-              </Button>
+              </div>
             </div>
-          </div>
+          </Link>
         )})}
       </div>
 

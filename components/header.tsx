@@ -174,8 +174,8 @@ export function Header() {
                     <span className="text-sm">@{myProfile.username}</span>
                   </Button>
                   <div className="invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all absolute right-0 mt-2 w-56 rounded-md border bg-background shadow-md z-50 overflow-hidden">
-                    <Link href={`/banda/${myProfile.username}`} prefetch onClick={handleNav} className="block px-3 py-2 text-sm hover:bg-accent/20">
-                      Perfil
+                    <Link href={`/usuario/${myProfile.username}`} prefetch onClick={handleNav} className="block px-3 py-2 text-sm hover:bg-accent/20">
+                      Mi Perfil
                     </Link>
                     <Link href="/bandas" prefetch onClick={handleNav} className="block px-3 py-2 text-sm hover:bg-accent/20">
                       Mis bandas
@@ -183,12 +183,12 @@ export function Header() {
                     <Link href="/" prefetch onClick={handleNav} className="block px-3 py-2 text-sm hover:bg-accent/20">
                       Mis lanzamientos
                     </Link>
-                    <Link href="/settings" prefetch onClick={handleNav} className="block px-3 py-2 text-sm hover:bg-accent/20">
-                      Settings
+                    <Link href="/configuracion" prefetch onClick={handleNav} className="block px-3 py-2 text-sm hover:bg-accent/20">
+                      Configuración
                     </Link>
                     <div className="h-px bg-border" />
                     <button onClick={handleSignOut} className="w-full text-left px-3 py-2 text-sm hover:bg-accent/20">
-                      Logout
+                      Salir
                     </button>
                   </div>
                 </div>
