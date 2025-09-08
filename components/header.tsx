@@ -4,63 +4,15 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Music, User, LogOut, Plus, Bell } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { createClient } from "@/lib/supabase/client"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import { useAuth } from "@/lib/hooks/useAuth"
 
 export function Header() {
-  const [user, setUser] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const { user, profile, isLoading } = useAuth()
   const [isNavigating, setIsNavigating] = useState(false)
-  const [myProfile, setMyProfile] = useState<{ username: string; avatar_url: string | null; display_name: string } | null>(
-    null,
-  )
   const router = useRouter()
-  const supabase = createClient()
   const pathname = usePathname()
-
-  useEffect(() => {
-    const getUserAndProfile = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      setUser(user)
-
-      if (user?.id) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("username, avatar_url, display_name")
-          .eq("id", user.id)
-          .single()
-        setMyProfile(profile as any)
-      } else {
-        setMyProfile(null)
-      }
-
-      setIsLoading(false)
-    }
-
-    getUserAndProfile()
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      const nextUser = session?.user ?? null
-      setUser(nextUser)
-      if (nextUser?.id) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("username, avatar_url, display_name")
-          .eq("id", nextUser.id)
-          .single()
-        setMyProfile(profile as any)
-      } else {
-        setMyProfile(null)
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [supabase.auth])
 
   // Reset navigating indicator when the route changes
   useEffect(() => {
@@ -72,7 +24,6 @@ export function Header() {
     const routes = ["/", "/bandas", "/comunidad", "/eventos", "/donaciones", "/submit", "/auth/signup", "/auth/login"]
     routes.forEach((r) => {
       try {
-        // @ts-expect-error: prefetch exists at runtime
         router.prefetch?.(r)
       } catch {}
     })
@@ -80,10 +31,7 @@ export function Header() {
 
   const handleNav = () => setIsNavigating(true)
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.push("/")
-  }
+
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -124,7 +72,7 @@ export function Header() {
 
           {isLoading ? (
             <div className="w-20 h-8 bg-muted animate-pulse rounded" />
-          ) : user ? (
+          ) : user && profile ? (
             <div className="flex items-center gap-2">
               {/* Plus menu */}
               <div className="relative group">
@@ -157,55 +105,40 @@ export function Header() {
               </div>
 
               {/* User menu */}
-              {myProfile && (
-                <div className="relative group">
-                  <Button variant="ghost" size="sm" className="flex items-center gap-2" aria-haspopup="menu">
-                    <Avatar className="h-7 w-7">
-                      <AvatarImage
-                        src={
-                          myProfile.avatar_url ||
-                          (user?.user_metadata?.avatar_url as string) ||
-                          (user?.user_metadata?.picture as string) ||
-                          ""
-                        }
-                      />
-                      <AvatarFallback>{(myProfile.display_name || "U").charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm">@{myProfile.username}</span>
-                  </Button>
-                  <div className="invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all absolute right-0 mt-2 w-56 rounded-md border bg-background shadow-md z-50 overflow-hidden">
-                    <Link href={`/banda/${myProfile.username}`} prefetch onClick={handleNav} className="block px-3 py-2 text-sm hover:bg-accent/20">
-                      Perfil
-                    </Link>
-                    <Link href="/bandas" prefetch onClick={handleNav} className="block px-3 py-2 text-sm hover:bg-accent/20">
-                      Mis bandas
-                    </Link>
-                    <Link href="/" prefetch onClick={handleNav} className="block px-3 py-2 text-sm hover:bg-accent/20">
-                      Mis lanzamientos
-                    </Link>
-                    <Link href="/settings" prefetch onClick={handleNav} className="block px-3 py-2 text-sm hover:bg-accent/20">
-                      Settings
-                    </Link>
-                    <div className="h-px bg-border" />
-                    <button onClick={handleSignOut} className="w-full text-left px-3 py-2 text-sm hover:bg-accent/20">
-                      Logout
-                    </button>
-                  </div>
+              <div className="relative group">
+                <Button variant="ghost" size="sm" className="flex items-center gap-2" aria-haspopup="menu">
+                  <Avatar className="h-7 w-7">
+                    <AvatarImage
+                      src={profile.avatar_url || ""}
+                    />
+                    <AvatarFallback>{(profile.display_name || "U").charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm">@{profile.username}</span>
+                </Button>
+                <div className="invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all absolute right-0 mt-2 w-56 rounded-md border bg-background shadow-md z-50 overflow-hidden">
+                  <Link href={`/usuario/${profile.username}`} prefetch onClick={handleNav} className="block px-3 py-2 text-sm hover:bg-accent/20">
+                    Mi Perfil
+                  </Link>
+                  <Link href="/bandas" prefetch onClick={handleNav} className="block px-3 py-2 text-sm hover:bg-accent/20">
+                    Mis Bandas
+                  </Link>
+                  <Link href="/" prefetch onClick={handleNav} className="block px-3 py-2 text-sm hover:bg-accent/20">
+                    Mis lanzamientos
+                  </Link>
+                  <Link href={`/usuario/${profile.username}/settings`} prefetch onClick={handleNav} className="block px-3 py-2 text-sm hover:bg-accent/20">
+                    Configuración
+                  </Link>
+                  <div className="h-px bg-border" />
+                  <Link href="/logout" prefetch onClick={handleNav} className="block px-3 py-2 text-sm hover:bg-accent/20">
+                    Logout
+                  </Link>
                 </div>
-              )}
+              </div>
             </div>
           ) : (
-            <>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/auth/signup?tab=login" prefetch onClick={handleNav}>
-                  <User className="h-4 w-4 mr-2" />
-                  Iniciar Sesión
-                </Link>
-              </Button>
-              <Button size="sm" asChild>
-                <Link href="/auth/signup" prefetch onClick={handleNav}>Registrarse</Link>
-              </Button>
-            </>
+            <Button size="sm" asChild variant="destructive">
+              <Link href="/auth/login">Ingresar</Link>
+            </Button>
           )}
         </div>
       </div>
